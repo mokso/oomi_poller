@@ -1,0 +1,39 @@
+version: '3.8'
+
+services:
+  postgres:
+    container_name: postgres-caruna
+    image: postgres:13.3
+    ports:
+      - 5432:5432
+    environment:
+      - POSTGRES_USER=caruna
+      - POSTGRES_PASSWORD=test
+      - POSTGRES_DB=caruna
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "caruna"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  dbup:
+    container_name: dbup
+    build:
+      context: db/
+      dockerfile: Dockerfile
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  oomi-poller:
+    container_name: oomi-poller
+    build:
+      context: .
+      dockerfile: Dockerfile
+    depends_on:
+      dbup:
+        condition: service_completed_successfully
+    env_file:
+      - .env
+    environment:
+      - POSTGRES_SERVER=postgres-caruna
