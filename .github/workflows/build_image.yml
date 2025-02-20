@@ -15,7 +15,7 @@ jobs:
       - name: Generate Date Tag
         id: date_tag
         run: |
-          DATE_TAG=$(date +'%Y%m%d')
+          DATE_TAG=$(date +'%Y.%m.%d')
           echo "DATE_TAG=${DATE_TAG}" >> $GITHUB_ENV
 
         # Set up Docker Buildx
