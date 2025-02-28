@@ -12,7 +12,7 @@ class OomiClient:
     def __init__(self, username, password):
         self.username = username
         self.password = password
-        self.session = requests.Session()
+        self.session = None
         self.verificationtoken = None
 
     def login(self) -> None:
@@ -20,6 +20,8 @@ class OomiClient:
 
         login_url_1 = 'https://online.oomi.fi/eServices/Online/IndexNoAuth'
         login_url_2 = 'https://online.oomi.fi/eServices/Online/Login'
+        
+        self.session = requests.Session()
         response_1 = self.session.get(login_url_1)
 
         # get verification token from the noauth page
