@@ -41,6 +41,7 @@ class PostgresDB:
 
         # ensure we have only one record per timestamp
         df = df.groupby("time").agg("sum").reset_index()
+        df["value"] = df["value"].astype(str).str.replace(",", ".").astype(float)
 
         
         # Load table metadata
@@ -81,6 +82,7 @@ class PostgresDB:
 
         # ensure we have only one record per timestamp
         df = df.groupby("time").agg("sum").reset_index()
+        df["value"] = df["value"].astype(str).str.replace(",", ".").astype(float)
 
         # Load table metadata
         metadata = MetaData()
@@ -131,6 +133,7 @@ class PostgresDB:
 
         # ensure we have only one record per timestamp
         df = df.groupby("time").agg("max").reset_index()
+        df["price"] = df["price"].astype(str).str.replace(",", ".").astype(float)
 
         # Load table metadata
         metadata = MetaData()
@@ -143,8 +146,9 @@ class PostgresDB:
 
         with self.engine.begin() as conn:
             stmt = insert(energy_spot_price_table).values(df.to_dict(orient="records"))
-            stmt = stmt.on_conflict_do_nothing(
+            stmt = stmt.on_conflict_do_update(
                 index_elements=["time"],  # Conflict on 'time' column (Primary Key)
+                set_={"price": stmt.excluded.price}  # Update 'price' if time already exists
             )
             conn.execute(stmt)
 
